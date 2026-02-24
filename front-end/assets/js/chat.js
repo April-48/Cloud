@@ -5,18 +5,17 @@ $(document).ready(function() {
     d, h, m,
     i = 0;
 
-  // --- 🟢 新增部分开始: 生成或读取固定的 User ID ---
-  // 尝试从浏览器缓存读取 ID
+
   var userId = localStorage.getItem('userId');
 
-  // 如果是第一次来（缓存没 ID），就生成一个新的，并存起来
+
   if (!userId) {
-    // 生成一个随机 ID，例如: user-1678900000-456
+
     userId = 'user-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
     localStorage.setItem('userId', userId);
   }
   console.log("Current User ID:", userId);
-  // --- 🟢 新增部分结束 ---
+
 
   $(window).load(function() {
     $messages.mCustomScrollbar();
@@ -47,9 +46,9 @@ $(document).ready(function() {
           text: message
         }
       }],
-      // --- 🟢 新增部分: 把 ID 传给后端 ---
+
       userId: userId 
-      // ---------------------------------
+
     }, {});
   }
 

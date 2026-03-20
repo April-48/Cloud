@@ -1,0 +1,48 @@
+alertmanager:
+  config:
+    global:
+      slack_api_url: "REPLACE_WITH_YOUR_OWN_WEBHOOK"
+
+    route:
+      receiver: slack-notifications
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 30s
+      repeat_interval: 1m
+      routes:
+        - matchers:
+            - alertname = "Watchdog"
+          receiver: "null"
+
+    receivers:
+      - name: slack-notifications
+        slack_configs:
+          - channel: "#alert"
+            send_resolved: true
+            title: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
+            text: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}{{ end }}"
+
+      - name: "null"
+
+additionalPrometheusRulesMap:
+  custom-rules:
+    groups:
+      - name: custom.rules
+        rules:
+          - alert: PodRestartingFrequently
+            expr: increase(kube_pod_container_status_restarts_total[2m]) > 0
+            for: 30s
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod is restarting"
+              description: "A pod restarted recently."
+
+          - alert: PodNotReady
+            expr: kube_pod_status_ready{condition="true"} == 0
+            for: 30s
+            labels:
+              severity: warning
+            annotations:
+              summary: "Pod not ready"
+              description: "A pod is not ready."
